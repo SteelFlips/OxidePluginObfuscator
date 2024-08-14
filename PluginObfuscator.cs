@@ -104,29 +104,75 @@ namespace Oxide.Plugins
         private string ObfuscatePluginContent(string content)
         {
             StringBuilder obfuscatedContent = new StringBuilder();
-            foreach (char c in content)
+            string[] lines = content.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            bool shouldObfuscate = false;
+
+            foreach (string line in lines)
             {
-                obfuscatedContent.Append("\\u" + ((int)c).ToString("x4"));
+                if (shouldObfuscate)
+                {
+                    foreach (char c in line)
+                    {
+                        obfuscatedContent.Append("\\u" + ((int)c).ToString("x4"));
+                    }
+                    obfuscatedContent.Append(Environment.NewLine);
+                }
+                else
+                {
+                    obfuscatedContent.AppendLine(line);
+
+                    if (line.Contains(": RustPlugin"))
+                    {
+                        shouldObfuscate = true;
+                    }
+                }
             }
+
             return obfuscatedContent.ToString();
         }
 
         private string DeobfuscatePluginContent(string obfuscatedContent)
         {
             StringBuilder deobfuscatedContent = new StringBuilder();
-            string[] parts = obfuscatedContent.Split(new string[] { "\\u" }, StringSplitOptions.RemoveEmptyEntries);
-            
-            foreach (string part in parts)
+            string[] lines = obfuscatedContent.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+            bool shouldDeobfuscate = false;
+
+            foreach (string line in lines)
             {
-                int charCode = int.Parse(part.Substring(0, 4), System.Globalization.NumberStyles.HexNumber);
-                deobfuscatedContent.Append((char)charCode);
-                
-                if (part.Length > 4)
+                if (shouldDeobfuscate)
                 {
-                    deobfuscatedContent.Append(part.Substring(4));
+                    string[] parts = line.Split(new string[] { "\\u" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    foreach (string part in parts)
+                    {
+                        if (part.Length >= 4)
+                        {
+                            int charCode = int.Parse(part.Substring(0, 4), System.Globalization.NumberStyles.HexNumber);
+                            deobfuscatedContent.Append((char)charCode);
+
+                            if (part.Length > 4)
+                            {
+                                deobfuscatedContent.Append(part.Substring(4));
+                            }
+                        }
+                        else
+                        {
+                            deobfuscatedContent.Append(part);
+                        }
+                    }
+                    deobfuscatedContent.AppendLine();
+                }
+                else
+                {
+                    deobfuscatedContent.AppendLine(line);
+
+                    if (line.Contains(": RustPlugin"))
+                    {
+                        shouldDeobfuscate = true;
+                    }
                 }
             }
-            
+
             return deobfuscatedContent.ToString();
         }
     }
