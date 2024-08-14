@@ -36,7 +36,11 @@ obfuscate <targetname> <newname>
 Example:
 
 ```
-obfuscate ExamplePlugin ObfuscatedExamplePlugin
+obfuscate ExamplePlugin ExamplePlugin
+```
+or
+```
+obfuscate ExamplePlugin RenamedExamplePlugin
 ```
 
 ### Deobfuscating a Plugin
@@ -53,7 +57,11 @@ deobfuscate <obfuscatedName> <newname>
 Example:
 
 ```
-deobfuscate ObfuscatedExamplePlugin DeobfuscatedExamplePlugin
+deobfuscate ExamplePlugin ExamplePlugin
+```
+or
+```
+deobfuscate ExamplePlugin RenamedExamplePlugin
 ```
 
 ### Important Notes
